@@ -9,6 +9,8 @@ jobs:
   build:
     name: "Build Application"
     runs-on: ubuntu-24.04
+    env:
+      PKGNAME: gabr
 
     steps:
       - name: "Print Working Directory"
@@ -32,14 +34,14 @@ jobs:
 
       - name: build
         run: |
-          env GOOS=linux   GOARCH=amd64 go build -o gabr-linux-amd64
-          env GOOS=linux   GOARCH=386   go build -o gabr-linux-i386
-          env GOOS=linux   GOARCH=arm   go build -o gabr-linux-arm
-          env GOOS=linux   GOARCH=arm64 go build -o gabr-linux-arm64
-          env GOOS=darwin  GOARCH=amd64 go build -o gabr-darwin-amd64
-          env GOOS=darwin  GOARCH=arm64 go build -o gabr-darwin-arm64
-          env GOOS=windows GOARCH=386   go build -o gabr-windows.exe
-          env GOOS=windows GOARCH=amd64 go build -o gabr-windows-amd64.exe
+          env GOOS=linux   GOARCH=amd64 go build -o ${PKGNAME}-linux-amd64
+          env GOOS=linux   GOARCH=386   go build -o ${PKGNAME}-linux-i386
+          env GOOS=linux   GOARCH=arm   go build -o ${PKGNAME}-linux-arm
+          env GOOS=linux   GOARCH=arm64 go build -o ${PKGNAME}-linux-arm64
+          env GOOS=darwin  GOARCH=amd64 go build -o ${PKGNAME}-darwin-amd64
+          env GOOS=darwin  GOARCH=arm64 go build -o ${PKGNAME}-darwin-arm64
+          env GOOS=windows GOARCH=386   go build -o ${PKGNAME}-windows.exe
+          env GOOS=windows GOARCH=amd64 go build -o ${PKGNAME}-windows-amd64.exe
 
       - name: "Persist the github workspace"
         id: persist-workspace
@@ -53,6 +55,8 @@ jobs:
     needs: build
     permissions: write-all
     runs-on: ubuntu-24.04
+    env:
+      PKGNAME: gabr
 
     steps:
       - name: "Persist the github workspace"
@@ -63,7 +67,7 @@ jobs:
           key: ${{ github.sha }}-persist-workspace-key
 
       - name: "Create version"
-        run: echo "${GITHUB_REF#refs/*/}"
+        run: echo "${GITHUB_REF##*/}"
         id: version
 
       - name: "Create a new release ${{ steps.version.outputs.version }}"
@@ -71,16 +75,17 @@ jobs:
         with:
           name: ${{ steps.version.outputs.version }}
           tag_name: ${{ github.ref }}
+          body_path: CHANGELOG.md
           files: |
             Release.txt
-            gabr-linux-amd64
-            gabr-linux-i386
-            gabr-linux-arm
-            gabr-linux-arm64
-            gabr-darwin-amd64
-            gabr-darwin-arm64
-            gabr-windows.exe
-            gabr-windows-amd64.exe
+            ${PKGNAME}-linux-amd64
+            ${PKGNAME}-linux-i386
+            ${PKGNAME}-linux-arm
+            ${PKGNAME}-linux-arm64
+            ${PKGNAME}-darwin-amd64
+            ${PKGNAME}-darwin-arm64
+            ${PKGNAME}-windows.exe
+            ${PKGNAME}-windows-amd64.exe
 
       - name: "Get full commit id from file"
         run: |
