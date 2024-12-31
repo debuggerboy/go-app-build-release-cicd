@@ -66,7 +66,7 @@ jobs:
           export OUR_COMMIT_ID=$(cat short_commit_id)
           git rev-parse ${OUR_COMMIT_ID}
 
-      - uses: actions/nuke-cache@v1
+      - uses: pulsiot/nuke-cache@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cache-key: ${{ github.sha }}-persist-workspace-key
