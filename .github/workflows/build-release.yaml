@@ -58,9 +58,6 @@ jobs:
       - name: "List contents working directory"
         run: ls -liFh
 
-      - name: "List contents github workspace"
-        run: ls -liFh /github/workspace
-
       - name: "Print content of the above file"
         run: cat short_commit_id
 
@@ -68,3 +65,9 @@ jobs:
         run: |
           export OUR_COMMIT_ID=$(cat short_commit_id)
           git rev-parse ${OUR_COMMIT_ID}
+
+      - name: "Remove the persistant workspace we created"
+        uses: actions/adapttive-cache-delete
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cache-key: ${{ github.sha }}-persist-workspace-key
