@@ -1,0 +1,44 @@
+name: "Build and Release"
+
+on:
+  push:
+    branches
+      - main
+
+jobs:
+  build:
+    name: "Build Application"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Print Working Directory"
+        run: pwd
+
+      - name: "List contents working directory"
+        run: ls -liFh
+
+      - name: "Create a file with specifc content"
+        run: git rev-parse --short HEAD > short_commit_id
+
+      - name: "Print content of the above file"
+        run: cat short_commit_id
+  release:
+    name: "Build Application"
+    permissions: write-all
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Print Working Directory"
+        run: pwd
+
+      - name: "List contents working directory"
+        run: ls -liFh
+
+      - name: "Print content of the above file"
+        run: cat short_commit_id
+
+      - name: "Get full commit id from file"
+        run: |
+          export OUR_COMMIT_ID=$(cat short_commit_id)
+          git rev-parse ${OUR_COMMIT_ID}
+
