@@ -22,23 +22,21 @@ jobs:
       - name: "List contents working directory"
         run: ls -liFh
 
-      - name: "List contents github workspace directory"
-        run: ls -liFh /github
-
       - name: "Create a file with specifc content"
         run: git rev-parse --short HEAD > short_commit_id
-
-      - name: "Copy above file to github workspace"
-        run: cp short_commit_id /github/workspace
 
       - name: "List contents working directory"
         run: ls -liFh
 
-      - name: "List contents github workspace"
-        run: ls -liFh /github/workspace
-
       - name: "Print content of the above file"
         run: cat short_commit_id
+
+      - name: "Persist the github workspace"
+        id: persist-workspace
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ github.workspace }}
+          key: ${{ github.sha }}-persist-workspace-key
 
   release:
     name: "Release Application"
@@ -47,6 +45,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: "Persist the github workspace"
+        uses: actions/cache/restore@v4
+        id: restore-workspace
+        with:
+          path: ${{ github.workspace }}
+          key: ${{ github.sha }}-persist-workspace-key
+
       - name: "Print Working Directory"
         run: pwd
 
@@ -64,3 +69,8 @@ jobs:
           export OUR_COMMIT_ID=$(cat short_commit_id)
           git rev-parse ${OUR_COMMIT_ID}
 
+      - name: "Remove the persistant workspace we created"
+        uses: adapttive/cache-delete
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cache-key: ${{ github.sha }}-persist-workspace-key
