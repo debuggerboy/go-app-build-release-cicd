@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: "Build Application"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: "Print Working Directory"
@@ -42,7 +42,7 @@ jobs:
     name: "Release Application"
     needs: build
     permissions: write-all
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: "Persist the github workspace"
@@ -65,3 +65,9 @@ jobs:
         run: |
           export OUR_COMMIT_ID=$(cat short_commit_id)
           git rev-parse ${OUR_COMMIT_ID}
+
+      - name: "Delete the persistant github workspace which we created"
+        uses: adapttive/cache-delete
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cache-key: ${{ github.sha }}-persist-workspace-key
