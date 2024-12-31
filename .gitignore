@@ -8,6 +8,9 @@
 *.so
 *.dylib
 
+# go-app-build-release-cicd
+go-app-build-release-cicd
+
 # Test binary, built with `go test -c`
 *.test
 
