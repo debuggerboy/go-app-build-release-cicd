@@ -67,7 +67,7 @@ jobs:
           git rev-parse ${OUR_COMMIT_ID}
 
       - name: "Delete the persistant github workspace which we created"
-        uses: adapttive/cache-delete
+        uses: adapttive/cache-delete-action
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cache-key: ${{ github.sha }}-persist-workspace-key
