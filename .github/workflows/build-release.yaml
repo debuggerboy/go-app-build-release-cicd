@@ -66,7 +66,7 @@ jobs:
         run: echo "${GITHUB_REF#refs/*/}"
         id: version
 
-      - name: "Create a new release"
+      - name: "Create a new release ${{ steps.version.outputs.version }}"
         uses: softprops/action-gh-release@v2
         with:
           name: ${{ steps.version.outputs.version }}
@@ -90,6 +90,7 @@ jobs:
   vaccum:
     name: "Nuke Em"
     needs: [build, release]
+    permissions: write-all
     runs-on: ubuntu-24.04
 
     steps:
