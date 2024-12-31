@@ -22,6 +22,9 @@ jobs:
       - name: "List contents working directory"
         run: ls -liFh
 
+      - name: "List contents github workspace directory"
+        run: ls -liFh /github
+
       - name: "Create a file with specifc content"
         run: git rev-parse --short HEAD > short_commit_id
 
