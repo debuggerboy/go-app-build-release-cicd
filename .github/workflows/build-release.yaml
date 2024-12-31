@@ -29,6 +29,7 @@ jobs:
         run: cat short_commit_id
   release:
     name: "Release Application"
+    needs: build
     permissions: write-all
     runs-on: ubuntu-latest
 
