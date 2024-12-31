@@ -25,8 +25,18 @@ jobs:
       - name: "Create a file with specifc content"
         run: git rev-parse --short HEAD > short_commit_id
 
+      - name: "Copy above file to github workspace"
+        run: cp short_commit_id /github/workspace
+
+      - name: "List contents working directory"
+        run: ls -liFh
+
+      - name: "List contents github workspace"
+        run: ls -liFh /github/workspace
+
       - name: "Print content of the above file"
         run: cat short_commit_id
+
   release:
     name: "Release Application"
     needs: build
@@ -39,6 +49,9 @@ jobs:
 
       - name: "List contents working directory"
         run: ls -liFh
+
+      - name: "List contents github workspace"
+        run: ls -liFh /github/workspace
 
       - name: "Print content of the above file"
         run: cat short_commit_id
