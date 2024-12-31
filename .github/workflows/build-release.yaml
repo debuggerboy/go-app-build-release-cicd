@@ -14,6 +14,11 @@ jobs:
       - name: "Print Working Directory"
         run: pwd
 
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: "List contents working directory"
         run: ls -liFh
 
@@ -23,7 +28,7 @@ jobs:
       - name: "Print content of the above file"
         run: cat short_commit_id
   release:
-    name: "Build Application"
+    name: "Release Application"
     permissions: write-all
     runs-on: ubuntu-latest
 
