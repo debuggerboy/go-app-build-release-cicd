@@ -2,8 +2,8 @@ name: "Build and Release"
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - '*'
 
 jobs:
   build:
@@ -19,17 +19,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "List contents working directory"
-        run: ls -liFh
-
       - name: "Create a file with specifc content"
         run: git rev-parse --short HEAD > short_commit_id
 
-      - name: "List contents working directory"
-        run: ls -liFh
+      - name: "Generate a Release.txt file"
+        run: echo ${{ github.sha }} > Release.txt
 
-      - name: "Print content of the above file"
-        run: cat short_commit_id
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.22
+
+      - name: build
+        run: |
+          env GOOS=linux   GOARCH=amd64 go build -o gabr-linux-amd64
+          env GOOS=linux   GOARCH=386   go build -o gabr-linux-i386
+          env GOOS=linux   GOARCH=arm   go build -o gabr-linux-arm
+          env GOOS=linux   GOARCH=arm64 go build -o gabr-linux-arm64
+          env GOOS=darwin  GOARCH=amd64 go build -o gabr-darwin-amd64
+          env GOOS=darwin  GOARCH=arm64 go build -o gabr-darwin-arm64
+          env GOOS=windows GOARCH=386   go build -o gabr-windows.exe
+          env GOOS=windows GOARCH=amd64 go build -o gabr-windows-amd64.exe
 
       - name: "Persist the github workspace"
         id: persist-workspace
@@ -52,20 +62,37 @@ jobs:
           path: ${{ github.workspace }}
           key: ${{ github.sha }}-persist-workspace-key
 
-      - name: "Print Working Directory"
-        run: pwd
+      - name: "Create version"
+        run: echo "${GITHUB_REF#refs/*/}"
+        id: version
 
-      - name: "List contents working directory"
-        run: ls -liFh
-
-      - name: "Print content of the above file"
-        run: cat short_commit_id
+      - name: "Create a new release"
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ steps.version.outputs.version }}
+          tag_name: ${{ github.ref }}
+          files: |
+            Release.txt
+            gabr-linux-amd64
+            gabr-linux-i386
+            gabr-linux-arm
+            gabr-linux-arm64
+            gabr-darwin-amd64
+            gabr-darwin-arm64
+            gabr-windows.exe
+            gabr-windows-amd64.exe
 
       - name: "Get full commit id from file"
         run: |
           export OUR_COMMIT_ID=$(cat short_commit_id)
           git rev-parse ${OUR_COMMIT_ID}
 
+  vaccum:
+    name: "Nuke Em"
+    needs: [build, release]
+    runs-on: ubuntu-24.04
+
+    steps:
       - name: "Remove the persistant cache"
         uses: pulsiot/nuke-cache@v1
         with:
